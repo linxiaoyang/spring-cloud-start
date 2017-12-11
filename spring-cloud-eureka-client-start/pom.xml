@@ -9,23 +9,21 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>spring-cloud-eureka-server-start</artifactId>
+    <artifactId>spring-cloud-eureka-client-start</artifactId>
 
     <properties>
         <java.version>1.8</java.version>
     </properties>
 
-
     <dependencies>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-eureka-server</artifactId>
+            <artifactId>spring-cloud-starter-eureka</artifactId>
         </dependency>
     </dependencies>
 
-
     <build>
-        <finalName>spring-cloud-eureka-server-start</finalName>
+        <finalName>spring-cloud-eureka-client-start</finalName>
         <plugins>
 
             <plugin>

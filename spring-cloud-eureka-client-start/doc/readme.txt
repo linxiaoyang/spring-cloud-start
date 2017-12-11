@@ -1,0 +1,1 @@
+作为客户端连接到eureka server上，代表一个client已经注册上了。
