@@ -1,0 +1,1 @@
+eureka的服务端，可以注册到eureka中
