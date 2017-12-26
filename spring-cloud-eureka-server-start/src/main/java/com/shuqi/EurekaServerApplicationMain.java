@@ -9,10 +9,10 @@ import java.util.Date;
 
 @EnableEurekaServer
 @SpringBootApplication
-public class ApplicationMain {
+public class EurekaServerApplicationMain {
 
     public static void main(String[] args) {
-        SpringApplication.run(ApplicationMain.class, args);
-        System.out.println(new SimpleDateFormat("[yyyy-MM-dd HH:mm:ss]").format(new Date()) + " server started!");
+        SpringApplication.run(EurekaServerApplicationMain.class, args);
+        System.out.println(new SimpleDateFormat("[yyyy-MM-dd HH:mm:ss]").format(new Date()) + " EurekaServerApplicationMain started!");
     }
 }

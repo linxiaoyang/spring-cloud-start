@@ -9,18 +9,40 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>spring-cloud-eureka-server-start</artifactId>
+    <artifactId>spring-cloud-zuul-start</artifactId>
 
     <properties>
         <java.version>1.8</java.version>
     </properties>
 
-
     <dependencies>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-eureka-server</artifactId>
+            <artifactId>spring-cloud-starter-eureka</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-zuul</artifactId>
+
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.3.4</version>
+        </dependency>
+
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -29,9 +51,8 @@
 
     </dependencies>
 
-
     <build>
-        <finalName>spring-cloud-eureka-server-start</finalName>
+        <finalName>spring-cloud-zuul-start</finalName>
         <plugins>
 
             <plugin>
@@ -39,7 +60,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version>
                 <configuration>
-                    <mainClass>com.shuqi.EurekaServerApplicationMain</mainClass>
+                    <mainClass>com.shuqi.ZuulApplicationMain</mainClass>
                 </configuration>
                 <executions>
                     <execution>
