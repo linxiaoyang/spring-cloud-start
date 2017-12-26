@@ -1,4 +1,4 @@
-package com.shuqi.filter;
+package com.shuqi.filter.pre;
 
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;

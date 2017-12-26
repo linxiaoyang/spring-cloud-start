@@ -1,12 +1,10 @@
-package com.shuqi.filter;
+package com.shuqi.filter.pre;
 
 import com.alibaba.fastjson.JSONObject;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.http.HttpServletRequestWrapper;
 import com.shuqi.entity.GatewayReq;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 
 @Component
