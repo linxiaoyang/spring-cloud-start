@@ -1,5 +1,6 @@
 package com.shuqi.filter.route;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -20,6 +21,8 @@ import javax.net.ssl.X509TrustManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.alibaba.fastjson.JSON;
+import com.shuqi.entity.GatewayReq;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
@@ -136,8 +139,8 @@ public class MyRouteFilter extends SimpleHostRoutingFilter {
 
     @Override
     public boolean shouldFilter() {
-        Object newRoute =  RequestContext.getCurrentContext().get("newRoute");
-        if(newRoute!=null){
+        Object newRoute = RequestContext.getCurrentContext().get("newRoute");
+        if (newRoute != null) {
             return true;
         }
         return false;
@@ -157,12 +160,32 @@ public class MyRouteFilter extends SimpleHostRoutingFilter {
                 .buildZuulRequestQueryParams(request);
         String verb = getVerb(request);
         InputStream requestEntity = getRequestBody(request);
+
+
+        /******************************************************/
+
+        GatewayReq gatewayReq = (GatewayReq) context.get("gatewayReq");
+
+        String data = JSON.toJSONString(gatewayReq.getReqBody());
+
+        requestEntity=new ByteArrayInputStream(data.getBytes());
+
+
+        /*********************************************************/
+
+
         if (request.getContentLength() < 0) {
             context.setChunkedRequestBody();
         }
 
         String uri = this.helper.buildZuulRequestURI(request);
         this.helper.addIgnoredHeaders();
+
+
+        /********************************************************/
+
+
+        /*********************************************************/
 
         try {
             HttpResponse response = forward(this.httpClient, verb, uri, request, headers,
