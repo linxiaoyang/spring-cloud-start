@@ -27,7 +27,6 @@ public class MyPostFilter extends ZuulFilter {
         if(ctx.get("gatewayReq")!=null){
             ctx.remove("gatewayReq");
         }
-        System.out.println(ctx.get("gatewayReq"));
         return null;
     }
 }

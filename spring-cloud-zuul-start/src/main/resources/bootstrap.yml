@@ -12,4 +12,8 @@ zuul:
      eureka-client:
         path: /eureka-client/**
         url: http://localhost:8765
+logging:
+  level:
+     com.shuqi.filter.route.MyRouteFilter: debug
+
 

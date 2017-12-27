@@ -7,11 +7,7 @@ import java.net.URL;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -22,7 +18,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.alibaba.fastjson.JSON;
+import com.netflix.zuul.ZuulFilter;
 import com.shuqi.entity.GatewayReq;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
@@ -38,6 +36,7 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.EofSensorInputStream;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
@@ -54,7 +53,6 @@ import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.SimpleHostRoutingFilter;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
@@ -68,7 +66,7 @@ import lombok.extern.apachecommons.CommonsLog;
 
 
 @CommonsLog
-public class MyRouteFilter extends SimpleHostRoutingFilter {
+public class MyRouteFilter extends ZuulFilter {
 
 
     private static final DynamicIntProperty SOCKET_TIMEOUT = DynamicPropertyFactory
@@ -101,7 +99,6 @@ public class MyRouteFilter extends SimpleHostRoutingFilter {
     };
 
     public MyRouteFilter(ProxyRequestHelper helper, ZuulProperties properties) {
-        super(helper, properties);
         this.helper = helper;
         this.hostProperties = properties.getHost();
     }
@@ -168,7 +165,7 @@ public class MyRouteFilter extends SimpleHostRoutingFilter {
 
         String data = JSON.toJSONString(gatewayReq.getReqBody());
 
-        requestEntity=new ByteArrayInputStream(data.getBytes());
+        requestEntity = new ByteArrayInputStream(data.getBytes());
 
 
         /*********************************************************/
@@ -191,6 +188,13 @@ public class MyRouteFilter extends SimpleHostRoutingFilter {
             HttpResponse response = forward(this.httpClient, verb, uri, request, headers,
                     params, requestEntity);
             setResponse(response);
+
+//            InputStream inputStream =response.getEntity().getContent();
+//            byte[] bytes = IOUtils.toByteArray(inputStream);
+//            System.out.println("==============="+new String(bytes));
+
+
+
             setErrorCodeFor4xx(context, response);
         } catch (Exception ex) {
             context.set(ERROR_STATUS_CODE,
@@ -306,10 +310,15 @@ public class MyRouteFilter extends SimpleHostRoutingFilter {
                 log.debug(uri + this.helper.getQueryString(params));
         }
         try {
-            httpRequest.setHeaders(convertHeaders(headers));
             log.debug(httpHost.getHostName() + " " + httpHost.getPort() + " "
                     + httpHost.getSchemeName());
+            log.debug(httpRequest.getRequestLine().getMethod()+" "+httpRequest.getRequestLine().getProtocolVersion()+" "+httpRequest.getRequestLine().getUri());
+            Arrays.stream(httpRequest.getAllHeaders()).forEach(s->System.out.println(s.getName()+" "+s.getValue()));
+
+
             HttpResponse zuulResponse = forwardRequest(httpclient, httpHost, httpRequest);
+
+
             this.helper.appendDebug(info, zuulResponse.getStatusLine().getStatusCode(),
                     revertHeaders(zuulResponse.getAllHeaders()));
             return zuulResponse;
