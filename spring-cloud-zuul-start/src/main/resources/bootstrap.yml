@@ -17,3 +17,7 @@ logging:
      com.shuqi.filter.route.MyRouteFilter: debug
 
 
+
+zuul.SimpleHostRoutingFilter.route.disable: true
+
+
