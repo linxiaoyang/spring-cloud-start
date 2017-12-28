@@ -18,6 +18,6 @@ logging:
 
 
 
-zuul.SimpleHostRoutingFilter.route.disable: true
+#zuul.SimpleHostRoutingFilter.route.disable: true
 
 

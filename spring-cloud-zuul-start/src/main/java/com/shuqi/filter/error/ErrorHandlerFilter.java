@@ -36,7 +36,7 @@ public class ErrorHandlerFilter extends ZuulFilter {
     public Object run() {
         RequestContext ctx = RequestContext.getCurrentContext();
         Throwable throwable = ctx.getThrowable();
-        logger.error("this is a ErrorFilter : {}", throwable.getCause().getMessage());
+        logger.error("this is a ErrorFilter : {}", throwable);
         ctx.set("error.status_code", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         ctx.set("error.exception", throwable.getCause());
         if(ctx.getResponse().getStatus()==0){

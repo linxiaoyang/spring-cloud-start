@@ -38,7 +38,7 @@ public class PreZuulFilter extends ZuulFilter {
         //去simpleRoute
         if (ctx.getRouteHost() != null) {
             System.out.println(ctx.getRouteHost());
-//            ctx.setSendZuulResponse(false);
+            ctx.setSendZuulResponse(false);
         }
 
         ctx.set("newRoute","true");

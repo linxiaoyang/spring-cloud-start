@@ -8,6 +8,7 @@ import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -117,6 +118,16 @@ public class MyRouteFilter extends ZuulFilter {
                 MyRouteFilter.this.connectionManager.closeExpiredConnections();
             }
         }, 30000, 5000);
+
+//        this.connectionManagerTimer.schedule(new TimerTask() {
+//            @Override
+//            public void run() {
+//                if (MyRouteFilter.this.connectionManager == null) {
+//                    return;
+//                }
+//                MyRouteFilter.this.connectionManager.closeIdleConnections(1, TimeUnit.SECONDS);
+//            }
+//        }, 3000, 1000);
     }
 
     @PreDestroy
@@ -136,8 +147,7 @@ public class MyRouteFilter extends ZuulFilter {
 
     @Override
     public boolean shouldFilter() {
-        Object newRoute = RequestContext.getCurrentContext().get("newRoute");
-        if (newRoute != null) {
+        if (RequestContext.getCurrentContext().containsKey("newRoute")) {
             return true;
         }
         return false;
@@ -146,10 +156,7 @@ public class MyRouteFilter extends ZuulFilter {
     @Override
     public Object run() {
         RequestContext context = RequestContext.getCurrentContext();
-
-        //TODO
         context.setSendZuulResponse(true);
-
         HttpServletRequest request = context.getRequest();
         MultiValueMap<String, String> headers = this.helper
                 .buildZuulRequestHeaders(request);
@@ -164,6 +171,8 @@ public class MyRouteFilter extends ZuulFilter {
         GatewayReq gatewayReq = (GatewayReq) context.get("gatewayReq");
 
         String data = JSON.toJSONString(gatewayReq.getReqBody());
+
+        int contentSize=data.getBytes().length;
 
         requestEntity = new ByteArrayInputStream(data.getBytes());
 
@@ -186,13 +195,12 @@ public class MyRouteFilter extends ZuulFilter {
 
         try {
             HttpResponse response = forward(this.httpClient, verb, uri, request, headers,
-                    params, requestEntity);
+                    params, requestEntity,contentSize);
             setResponse(response);
 
 //            InputStream inputStream =response.getEntity().getContent();
 //            byte[] bytes = IOUtils.toByteArray(inputStream);
 //            System.out.println("==============="+new String(bytes));
-
 
 
             setErrorCodeFor4xx(context, response);
@@ -276,15 +284,16 @@ public class MyRouteFilter extends ZuulFilter {
 
     private HttpResponse forward(HttpClient httpclient, String verb, String uri,
                                  HttpServletRequest request, MultiValueMap<String, String> headers,
-                                 MultiValueMap<String, String> params, InputStream requestEntity)
+                                 MultiValueMap<String, String> params, InputStream requestEntity,int contentSize)
             throws Exception {
-        Map<String, Object> info = this.helper.debug(verb, uri, headers, params,
-                requestEntity);
+//        Map<String, Object> info = this.helper.debug(verb, uri, headers, params,
+//                requestEntity);
         URL host = RequestContext.getCurrentContext().getRouteHost();
         HttpHost httpHost = getHttpHost(host);
         uri = StringUtils.cleanPath((host.getPath() + uri).replaceAll("/{2,}", "/"));
         HttpRequest httpRequest;
-        int contentLength = request.getContentLength();
+
+        int contentLength = contentSize;
         InputStreamEntity entity = new InputStreamEntity(requestEntity, contentLength,
                 request.getContentType() != null
                         ? ContentType.create(request.getContentType()) : null);
@@ -312,15 +321,15 @@ public class MyRouteFilter extends ZuulFilter {
         try {
             log.debug(httpHost.getHostName() + " " + httpHost.getPort() + " "
                     + httpHost.getSchemeName());
-            log.debug(httpRequest.getRequestLine().getMethod()+" "+httpRequest.getRequestLine().getProtocolVersion()+" "+httpRequest.getRequestLine().getUri());
-            Arrays.stream(httpRequest.getAllHeaders()).forEach(s->System.out.println(s.getName()+" "+s.getValue()));
+            log.debug(httpRequest.getRequestLine().getMethod() + " " + httpRequest.getRequestLine().getProtocolVersion() + " " + httpRequest.getRequestLine().getUri());
+            Arrays.stream(httpRequest.getAllHeaders()).forEach(s -> System.out.println(s.getName() + " " + s.getValue()));
 
 
             HttpResponse zuulResponse = forwardRequest(httpclient, httpHost, httpRequest);
 
 
-            this.helper.appendDebug(info, zuulResponse.getStatusLine().getStatusCode(),
-                    revertHeaders(zuulResponse.getAllHeaders()));
+//            this.helper.appendDebug(info, zuulResponse.getStatusLine().getStatusCode(),
+//                    revertHeaders(zuulResponse.getAllHeaders()));
             return zuulResponse;
         } finally {
             // When HttpClient instance is no longer needed,
