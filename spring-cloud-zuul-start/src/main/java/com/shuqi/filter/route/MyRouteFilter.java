@@ -142,7 +142,7 @@ public class MyRouteFilter extends ZuulFilter {
 
     @Override
     public int filterOrder() {
-        return 100;
+        return 99;
     }
 
     @Override
@@ -156,7 +156,7 @@ public class MyRouteFilter extends ZuulFilter {
     @Override
     public Object run() {
         RequestContext context = RequestContext.getCurrentContext();
-        context.setSendZuulResponse(true);
+//        context.setSendZuulResponse(true);
         HttpServletRequest request = context.getRequest();
         MultiValueMap<String, String> headers = this.helper
                 .buildZuulRequestHeaders(request);
@@ -209,6 +209,9 @@ public class MyRouteFilter extends ZuulFilter {
                     HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             context.set("error.exception", ex);
         }
+
+
+        RequestContext.getCurrentContext().setRouteHost(null);
         return null;
     }
 
